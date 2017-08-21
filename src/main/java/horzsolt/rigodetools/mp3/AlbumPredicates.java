@@ -26,11 +26,11 @@ public class AlbumPredicates {
     public static final String[] banned = {"HARDSTYLE"};
 
     public static Predicate<Album> isFavourite() {
-        return album -> Arrays.stream(favs).anyMatch(x -> album.getTitle().toUpperCase().contains(x));
+        return album -> album.isFileFavourite() || Arrays.stream(favs).anyMatch(x -> album.getTitle().toUpperCase().contains(x));
     }
 
     public static Predicate<Album> isNotBanned() {
-        return album -> Arrays.stream(banned).noneMatch(x -> album.getTitle().toUpperCase().contains(x));
+        return album -> album.isFileFavourite() || Arrays.stream(banned).noneMatch(x -> album.getTitle().toUpperCase().contains(x));
     }
 
     public static Predicate<Album> isNotRadioShow() {

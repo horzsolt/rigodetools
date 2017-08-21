@@ -1,4 +1,4 @@
-package horzsolt.rigodetools.pricecheck;
+package horzsolt.rigodetools.tools;
 
 import horzsolt.rigodetools.RigodetoolsApplication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class MailSender {
     @Autowired
     private RigodetoolsApplication.GMailAccount gMailAccount;
 
-    public void sendMail(String text) {
+    public void sendMail(String subject, String text) {
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -36,7 +36,7 @@ public class MailSender {
             message.setFrom(new InternetAddress("horzsolt2006@gmail.com"));
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse("horzsolt2006@gmail.com"));
-            message.setSubject("Price drop alert notification");
+            message.setSubject(subject);
             message.setText(text);
 
             Transport.send(message);

@@ -15,6 +15,15 @@ public class Album {
     private List<Mp3> mp3Files = new ArrayList<>();
     private String ftpDirectory;
     private long sumSize;
+    private boolean fileFavourite;
+
+    public boolean isFileFavourite() {
+        return fileFavourite;
+    }
+
+    public void setFileFavourite(boolean fileFavourite) {
+        this.fileFavourite = fileFavourite;
+    }
 
     public long getList_duration() {
         return list_duration;

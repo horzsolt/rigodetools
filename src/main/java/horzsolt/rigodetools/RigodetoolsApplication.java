@@ -37,4 +37,27 @@ public class RigodetoolsApplication {
 			return password;
 		}
 	}
+
+	@Component
+	public static class FTPAccount {
+
+		@Value("${ftp.host}")
+		private String host;
+		@Value("${ftp.username}")
+		private String username;
+		@Value("${ftp.password}")
+		private String password;
+
+		public String getUsername() {
+			return username;
+		}
+
+		public String getPassword() {
+			return password;
+		}
+		public String getHost() {
+			return host;
+		}
+	}
+
 }

@@ -16,7 +16,7 @@ public class HealthNotifier {
     @Autowired
     private StatusBean statusBean;
 
-    @Scheduled(cron = "0 0 12 * * ?")
+    @Scheduled(cron = "0 0 12 * * *")
     public void sendNotificationEmail() {
         mailSender.sendMail("Status notification", "Invocation count: " + statusBean.getInvokationCount() + ", Errors: " + statusBean.getNumberOfErrors() + ", Last run: " + statusBean.getLastRun());
     }

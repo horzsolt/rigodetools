@@ -35,10 +35,10 @@ public class Mp3Getter {
 
     private List<String> lines = null;
 
-    @Scheduled(cron = "0 30 19 * * ? *")
+    @Scheduled(cron = "0 30 19 * * *")
     public void doIt() throws IOException {
 
-        Path favPath = Paths.get("/volume1/rigodetools/favs.txt");
+        Path favPath = Paths.get("/volume1/horzsolt/rigodetools/favs.txt");
 
         if (Files.exists(favPath)) {
             lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));

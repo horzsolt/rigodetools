@@ -70,7 +70,7 @@ public class FileToMp3Mapper {
                     .filter(ftpfile -> ftpfile.getName().length() > 3)
                     .forEach(ftpfile -> setAlbumDetails(album, ftpfile, fileFav));
 
-            if (!album.isFileFavourite()) {
+            if ((!album.isFileFavourite()) && (fileFav != null)) {
                 long count = album.getMp3Files().stream()
                         .filter(mp3 -> fileFav.stream().anyMatch(x -> mp3.getTitle().toUpperCase().contains(x.toUpperCase())))
                         .count();

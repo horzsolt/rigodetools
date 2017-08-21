@@ -35,14 +35,16 @@ public class Mp3Getter {
 
     private List<String> lines = null;
 
-    @Scheduled(cron = "0 30 19 * * *")
+    @Scheduled(cron = "0 10 20 * * ?")
     public void doIt() throws IOException {
 
+        logger.debug("Mp3Getter scheduled.");
         Path favPath = Paths.get("/volume1/horzsolt/rigodetools/favs.txt");
 
         if (Files.exists(favPath)) {
             lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));
             lines.stream().map(line -> line.toUpperCase());
+            logger.debug("Favs loaded.");
         }
 
         FTPClient ftp = new FTPClient();
@@ -52,6 +54,8 @@ public class Mp3Getter {
 
         ftp.login(ftpAcc.getUsername(), ftpAcc.getPassword());
         ftp.enterLocalPassiveMode();
+
+        logger.debug("Connected to ftp.");
 
         try {
 

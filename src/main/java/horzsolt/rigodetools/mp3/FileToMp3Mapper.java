@@ -43,8 +43,10 @@ public class FileToMp3Mapper {
                                 localPath = "/volume1/horzsolt/rigodetools/0day/" + dateFolderString + "/" + album.getTitle();
                             }
                             File f = new File(localPath);
+                            logger.debug("MkDirs: " + localPath);
                             f.mkdirs();
 
+                            logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle() + " -> " + localPath);
                             OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + mp3.getTitle()));
                             boolean success = client.retrieveFile( album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle(), outputStream1);
 

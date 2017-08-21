@@ -42,7 +42,6 @@ public class PriceChecker {
 
         logger.info("checkPLaystationProPrice triggered");
 
-
         CompletableFuture<Long> future1
                 = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(emagUrl, this::emagPriceExtractor));
         CompletableFuture<Long> future2
@@ -71,7 +70,7 @@ public class PriceChecker {
             Long result4 = future4.get();
             //Long result5 = future5.get();
 
-            if ((result1 < basePrice) || (result2 < basePrice) || (result3 < basePrice) || (result4 < basePrice)) {
+            if ((result1 > 0 && result1 < basePrice) || (result2 > 0 && result2 < basePrice) || (result3 > 0 && result3 < basePrice) || (result4 > 0 && result4 < basePrice)) {
                 mailSender.sendMail("Price drop alert notification", "EMag: " + result1.toString() + ", Edigital: " + result2.toString() + ", Media: " + result3.toString() + ", argep: " + result4.toString());
             }
 

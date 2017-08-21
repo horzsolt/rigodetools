@@ -21,8 +21,8 @@ public class PriceExtractor {
             Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
             return filter.apply(doc);
 
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error("getPrice: ", e);
             return 0L;
         } finally {
             long end = System.nanoTime();

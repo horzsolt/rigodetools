@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -42,15 +45,21 @@ public class FileToMp3Mapper {
                             } else {
                                 localPath = "/volume1/horzsolt/rigodetools/0day/" + dateFolderString + "/" + album.getTitle();
                             }
-                            File f = new File(localPath);
-                            logger.debug("MkDirs: " + localPath);
-                            f.mkdirs();
 
-                            logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle() + " -> " + localPath);
-                            OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + mp3.getTitle()));
-                            boolean success = client.retrieveFile( album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle(), outputStream1);
+                            Path localFile = Paths.get(localPath + "/" + mp3.getTitle());
 
-                            outputStream1.close();
+                            if (!Files.exists(localFile)) {
+                                File f = new File(localPath);
+                                logger.debug("MkDirs: " + localPath);
+                                f.mkdirs();
+
+                                logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle() + " -> " + localPath);
+
+                                OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + mp3.getTitle()));
+                                boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle(), outputStream1);
+
+                                outputStream1.close();
+                            }
                         } catch (Exception e) {
                             logger.error("dlFolder error: ", e);
                         }

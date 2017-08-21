@@ -35,7 +35,7 @@ public class Mp3Getter {
 
     private List<String> lines = null;
 
-    @Scheduled(cron = "0 10 20 * * ?")
+    @Scheduled(cron = "0 20 20 * * ?")
     public void doIt() throws IOException {
 
         logger.debug("Mp3Getter scheduled.");

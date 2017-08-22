@@ -36,7 +36,7 @@ public class PriceChecker {
     @Autowired
     private StatusBean statusBean;
 
-    @Scheduled(cron = "0 0/5 7-19 ? * *")
+    @Scheduled(cron = "0 0/30 7-19 ? * *")
     //@Scheduled(cron = "* * * * * *")
     public void checkPlaystationProPrice() {
 

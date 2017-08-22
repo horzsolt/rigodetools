@@ -33,36 +33,37 @@ public class FileToMp3Mapper {
         String dateFolderString = formatter.format(LocalDate.now());
 
         try {
+
             FTPFile[] files = client.listFiles(album.getFtpDirectory() + "/" + album.getTitle());
+            String localPath;
 
-            album.getMp3Files()
-                    .forEach(mp3 -> {
-                        try {
-                            String localPath;
+            if (album.isFileFavourite()) {
+                localPath = "/volume1/horzsolt/rigodetools/favourite/" + dateFolderString + "/" + album.getTitle();
+            } else {
+                localPath = "/volume1/horzsolt/rigodetools/0day/" + dateFolderString + "/" + album.getTitle();
+            }
 
-                            if (album.isFileFavourite()) {
-                                localPath = "/volume1/horzsolt/rigodetools/favourite/" + dateFolderString + "/" + album.getTitle();
-                            } else {
-                                localPath = "/volume1/horzsolt/rigodetools/0day/" + dateFolderString + "/" + album.getTitle();
-                            }
+            files.stream().foreach(ftpFile -> {
+                try {
+                    Path localFile = Paths.get(localPath + "/" + mp3.getTitle());
 
-                            Path localFile = Paths.get(localPath + "/" + mp3.getTitle());
+                    if (!Files.exists(localFile)) {
+                        File f = new File(localPath);
+                        logger.debug("MkDirs: " + localPath);
+                        f.mkdirs();
 
-                            if (!Files.exists(localFile)) {
-                                File f = new File(localPath);
-                                logger.debug("MkDirs: " + localPath);
-                                f.mkdirs();
+                        logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile. + " -> " + localPath);
 
-                                logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle() + " -> " + localPath);
+                        OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + ftpFile.getTitle()));
+                        boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getTitle(), outputStream1);
 
-                                OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + mp3.getTitle()));
-                                boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + mp3.getTitle(), outputStream1);
+                        outputStream1.close();
+                    }
+                } catch (Exception e) {
+                    logger.error("dlFolder error: ", e);
 
-                                outputStream1.close();
-                            }
-                        } catch (Exception e) {
-                            logger.error("dlFolder error: ", e);
-                        }
+                }
+
                     });
         } catch (Exception e) {
             logger.error("dlFolder error: ", e);

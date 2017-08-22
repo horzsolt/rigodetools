@@ -64,7 +64,6 @@ public class Mp3Getter {
                     .flatMap(parent -> {
                         return FTPHelper.listFTPFolder(parent, ftp);
                     })
-                    //.peek(n -> System.out.println(n))
                     .filter(ftpFile -> ftpFile.getFtpFile().getName().length() > 3)
                     .map(ftpFile -> FileToMp3Mapper.apply(ftpFile, ftp, lines))
                     .filter(album -> album != null)

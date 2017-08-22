@@ -5,10 +5,15 @@ import horzsolt.rigodetools.mp3.entity.Album;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by horzsolt on 2017. 06. 17..
  */
 public class AlbumPredicates {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String[] favs = {"BUUREN", "DIGWEED","SAIZ", "PETE_TONG", "SANDER", "GUY_J", "NICK_WARREN", "SASHA", "MACEO_PLEX",
             "ADVISOR", "CHART", "NEWIK", "MUSIC_KILLERS", "MINILOGUE", "PIG_DAN", "WATERMAT", "SHOWTEK", "MANTEY","TODD_TERJE", "MATTZO",
@@ -26,11 +31,20 @@ public class AlbumPredicates {
     public static final String[] banned = {"HARDSTYLE"};
 
     public static Predicate<Album> isFavourite() {
-        return album -> album.isFileFavourite() || Arrays.stream(favs).anyMatch(x -> album.getTitle().toUpperCase().contains(x));
+        return album -> {
+            boolean result =
+            album.isFileFavourite() || Arrays.stream(favs).anyMatch(x -> album.getTitle().toUpperCase().contains(x));
+            if (result) {
+                logger.debug("album.isFileFavourite() is " + album.isFileFavourite());
+                logger.debug("isFavourite predicate of " + album.getTitle() + " is " + result);
+            }
+
+            return result;
+        };
     }
 
     public static Predicate<Album> isNotBanned() {
-        return album -> album.isFileFavourite() || Arrays.stream(banned).noneMatch(x -> album.getTitle().toUpperCase().contains(x));
+        return album -> Arrays.stream(banned).noneMatch(x -> album.getTitle().toUpperCase().contains(x));
     }
 
     public static Predicate<Album> isNotRadioShow() {

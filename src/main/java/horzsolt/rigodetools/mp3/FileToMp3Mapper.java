@@ -43,19 +43,21 @@ public class FileToMp3Mapper {
                 localPath = "/volume1/horzsolt/rigodetools/0day/" + dateFolderString + "/" + album.getTitle();
             }
 
-            files.stream().foreach(ftpFile -> {
+            Arrays.stream(files)
+                    .filter(ftpFile -> ftpFile.isFile())
+                    .forEach(ftpFile -> {
                 try {
-                    Path localFile = Paths.get(localPath + "/" + mp3.getTitle());
+                    Path localFile = Paths.get(localPath + "/" + ftpFile.getName());
 
                     if (!Files.exists(localFile)) {
                         File f = new File(localPath);
                         logger.debug("MkDirs: " + localPath);
                         f.mkdirs();
 
-                        logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile. + " -> " + localPath);
+                        logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getName() + " -> " + localPath);
 
-                        OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + ftpFile.getTitle()));
-                        boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getTitle(), outputStream1);
+                        OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + ftpFile.getName()));
+                        boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getName(), outputStream1);
 
                         outputStream1.close();
                     }

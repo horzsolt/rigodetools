@@ -1,19 +1,18 @@
 package horzsolt.rigodetools.mp3;
 
 import horzsolt.rigodetools.mp3.entity.Album;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by horzsolt on 2017. 06. 17..
  */
 public class AlbumPredicates {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(AlbumPredicates.class);
 
     public static final String[] favs = {"BUUREN", "DIGWEED","SAIZ", "PETE_TONG", "SANDER", "GUY_J", "NICK_WARREN", "SASHA", "MACEO_PLEX",
             "ADVISOR", "CHART", "NEWIK", "MUSIC_KILLERS", "MINILOGUE", "PIG_DAN", "WATERMAT", "SHOWTEK", "MANTEY","TODD_TERJE", "MATTZO",

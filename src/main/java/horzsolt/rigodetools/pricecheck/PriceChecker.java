@@ -12,8 +12,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Created by horzsolt on 2017. 08. 14..
@@ -36,80 +38,77 @@ public class PriceChecker {
     @Autowired
     private StatusBean statusBean;
 
+    private static <T> CompletableFuture<List<T>> completeFutures(List<CompletableFuture<T>> futures) {
+        CompletableFuture<Void> allDoneFuture =
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+        return allDoneFuture.thenApply(v ->
+                futures.stream().
+                        map(future -> future.join()).
+                        collect(Collectors.<T>toList())
+        );
+    }
+
     @Scheduled(cron = "0 0/30 7-19 ? * *")
-    //@Scheduled(cron = "* * * * * *")
     public void checkPlaystationProPrice() {
 
         logger.info("checkPLaystationProPrice triggered");
+        List<CompletableFuture<PriceResult>> futures = new ArrayList<>();
 
-        CompletableFuture<Long> future1
-                = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(emagUrl, this::emagPriceExtractor));
-        CompletableFuture<Long> future2
-                = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(edigitalUrl, this::edigitalPriceExtractor));
-        CompletableFuture<Long> future3
-                = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(medialUrl, this::mediaMarktPriceExtractor));
-        CompletableFuture<Long> future4
-                = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(argepUrl, this::argepPriceExtractor));
-        /*CompletableFuture<Long> future5
-                = CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(telekomUrl, this::telekomPriceExtractor));
-                */
+        futures.add(CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(emagUrl, this::emagPriceExtractor)));
+        futures.add(CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(edigitalUrl, this::edigitalPriceExtractor)));
+        futures.add(CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(medialUrl, this::mediaMarktPriceExtractor)));
+        futures.add(CompletableFuture.supplyAsync(() -> PriceExtractor.getPrice(argepUrl, this::argepPriceExtractor)));
 
-        CompletableFuture<Void> combinedFuture
-                = CompletableFuture.allOf(future1, future2, future3, future4).exceptionally((error) -> {
-            statusBean.incNumberOfErrors();
-            return null;
-        });
+        CompletableFuture<List<String>> discountFutures = completeFutures(futures).thenApply(prices ->
+                prices.stream()
+                        .peek(priceResult -> logger.debug(("Peek before filter: " + priceResult.toString())))
+                        .filter(priceResult -> (priceResult.getPrice() > 0 && priceResult.getPrice() < basePrice))
+                        .peek(priceResult -> logger.debug(("Peek after filter: " + priceResult.toString())))
+                        .map(priceResult -> priceResult.toString())
+                        .collect(Collectors.toList()));
+
+        List<String> discounts = null;
 
         try {
-
-            combinedFuture.get();
-
-            Long result1 = future1.get();
-            Long result2 = future2.get();
-            Long result3 = future3.get();
-            Long result4 = future4.get();
-            //Long result5 = future5.get();
-
-            if ((result1 > 0 && result1 < basePrice) || (result2 > 0 && result2 < basePrice) || (result3 > 0 && result3 < basePrice) || (result4 > 0 && result4 < basePrice)) {
-                mailSender.sendMail("Price drop alert notification", "EMag: " + result1.toString() + ", Edigital: " + result2.toString() + ", Media: " + result3.toString() + ", argep: " + result4.toString());
-            }
-
-            statusBean.incInvokationCount();
-            statusBean.setLastRun(LocalDateTime.now());
-
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Exception at checkPlaystationProPrice: ", e);
+            discounts = discountFutures.get();
+        } catch (Exception e) {
+            logger.error("",e);
         }
 
+        if (discounts.size() > 0)
+                mailSender.sendMail("Price drop alert notification", discounts.toString());
+
+        statusBean.incInvokationCount();
+        statusBean.setLastRun(LocalDateTime.now());
     }
 
-    public Long mediaMarktPriceExtractor(Document document) {
-        return new Long(document.select("meta[itemprop=price]").first().attr("content").replace(".", "").trim());
+    public PriceResult mediaMarktPriceExtractor(Document document) {
+        return new PriceResult("MediMarkt", new Long(document.select("meta[itemprop=price]").first().attr("content").replace(".", "").trim()));
     }
 
-    public Long emagPriceExtractor(Document document) {
-        return new Long(document.select(".product-new-price").first().childNode(0).toString().replace(".", "").trim());
+    public PriceResult emagPriceExtractor(Document document) {
+        return new PriceResult("EMag", new Long(document.select(".product-new-price").first().childNode(0).toString().replace(".", "").trim()));
     }
 
-    public Long argepPriceExtractor(Document document) {
+    public PriceResult argepPriceExtractor(Document document) {
         String cleaned = document.select(".OfferPrice").first().childNode(0).toString().replaceAll("[^0-9.]", "");
-        return new Long(cleaned.replace(" ", "").trim());
+        return new PriceResult("Argep", new Long(cleaned.replace(" ", "").trim()));
     }
 
-    public Long telekomPriceExtractor(Document document) {
-        return new Long(StringEscapeUtils.escapeHtml4(document.select("product-summary__price ff-ult fs-2-5 ng-binding").first().childNode(0).toString().replace(" Ft", "").trim()));
+    public PriceResult telekomPriceExtractor(Document document) {
+        return new PriceResult("Telekom", new Long(StringEscapeUtils.escapeHtml4(document.select("product-summary__price ff-ult fs-2-5 ng-binding").first().childNode(0).toString().replace(" Ft", "").trim())));
     }
 
-    public Long edigitalPriceExtractor(Document document) {
+    public PriceResult edigitalPriceExtractor(Document document) {
         Elements links = document.select(".price--large");
 
-        return links.stream()
+        return new PriceResult("Edigital", new Long(links.stream()
                 .findFirst()
                 .get().attributes()
                 .asList().stream()
                 .filter(x -> x.getKey().equals("content"))
                 .mapToLong(x -> new Long(x.getValue()))
-                .findFirst().getAsLong();
+                .findFirst().getAsLong()));
     }
 
 }

@@ -2,6 +2,7 @@ package horzsolt.rigodetools;
 
 import horzsolt.rigodetools.pricecheck.PriceChecker;
 import horzsolt.rigodetools.pricecheck.PriceExtractor;
+import horzsolt.rigodetools.pricecheck.PriceResult;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,29 +23,30 @@ public class JSoupTests {
 
         PriceChecker priceChecker = new PriceChecker();
 
-        Long media = PriceExtractor.getPrice(priceChecker.medialUrl, priceChecker::mediaMarktPriceExtractor);
+        PriceResult media = PriceExtractor.getPrice(priceChecker.medialUrl, priceChecker::mediaMarktPriceExtractor);
 
         logger.debug("MediaMarktPrice: " + media);
-        assertTrue(media > 0);
+        assertTrue(media.getPrice() > 0);
 
-        Long emag = PriceExtractor.getPrice(priceChecker.emagUrl, priceChecker::emagPriceExtractor);
+        PriceResult emag = PriceExtractor.getPrice(priceChecker.emagUrl, priceChecker::emagPriceExtractor);
 
         logger.debug("EMagPrice: " + emag);
-        assertTrue(emag > 0);
+        assertTrue(emag.getPrice() > 0);
 
-        Long argep = PriceExtractor.getPrice(priceChecker.argepUrl, priceChecker::argepPriceExtractor);
+        PriceResult argep = PriceExtractor.getPrice(priceChecker.argepUrl, priceChecker::argepPriceExtractor);
 
         logger.debug("argepPrice: " + argep);
-        assertTrue(argep > 0);
+        assertTrue(argep.getPrice() > 0);
 
-        Long edigital = PriceExtractor.getPrice(priceChecker.edigitalUrl, priceChecker::edigitalPriceExtractor);
+        PriceResult edigital = PriceExtractor.getPrice(priceChecker.edigitalUrl, priceChecker::edigitalPriceExtractor);
 
         logger.debug("edigitalPrice: " + edigital);
-        assertTrue(edigital > 0);
+        assertTrue(edigital.getPrice() > 0);
 
-        Long telekom = PriceExtractor.getPrice(priceChecker.telekomUrl, priceChecker::telekomPriceExtractor);
+        /*PriceResult telekom = PriceExtractor.getPrice(priceChecker.telekomUrl, priceChecker::telekomPriceExtractor);
 
         logger.debug("telekomPrice: " + telekom);
-        assertTrue(telekom > 0);
+        assertTrue(telekom.getPrice() > 0);
+        */
     }
 }

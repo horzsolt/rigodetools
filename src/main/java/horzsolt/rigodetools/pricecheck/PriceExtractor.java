@@ -5,28 +5,30 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.function.Function;
 
 public class PriceExtractor {
 
     private static final Logger logger = LoggerFactory.getLogger(PriceExtractor.class);
 
-    public static Long getPrice(String url, Function<Document, Long> filter) {
+    public static PriceResult getPrice(String url, Function<Document, PriceResult> filter) {
 
         long start = System.nanoTime();
+        PriceResult result = null;
 
         try {
 
             Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
-            return filter.apply(doc);
+            result = filter.apply(doc);
+
+            return result;
 
         } catch (Exception e) {
             logger.error("getPrice: ", e);
-            return 0L;
+            return new PriceResult("",0L);
         } finally {
             long end = System.nanoTime();
-            logger.debug("Time taken : " + (end - start) / 1.0e9);
+            logger.debug("Time taken for " + result.toString() + ": " + (end - start) / 1.0e9);
         }
     }
 }

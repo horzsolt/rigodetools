@@ -16,7 +16,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static horzsolt.rigodetools.mp3.DateHelper.getDateStream;
 
@@ -33,7 +35,7 @@ public class Mp3Getter {
     @Autowired
     private StatusBean statusBean;
 
-    private List<String> lines = null;
+    private List<String> lines = Collections.emptyList();
 
     @Scheduled(cron = "0 20 20 * * ?")
     public void doIt() throws IOException {
@@ -60,13 +62,11 @@ public class Mp3Getter {
         try {
 
             getDateStream(LocalDate.now(), LocalDate.now())
-                    .map(dateString -> "/MP3/0-DAY/" + dateString)
-                    .flatMap(parent -> {
-                        return FTPHelper.listFTPFolder(parent, ftp);
-                    })
+                    .map("/MP3/0-DAY/"::concat)
+                    .flatMap(parent -> FTPHelper.listFTPFolder(parent, ftp))
                     .filter(ftpFile -> ftpFile.getFtpFile().getName().length() > 3)
                     .map(ftpFile -> FileToMp3Mapper.apply(ftpFile, ftp, lines))
-                    .filter(album -> album != null)
+                    .filter(Objects::nonNull)
                     .filter(AlbumPredicates.isFavourite())
                     .filter(AlbumPredicates.isNotBanned())
                     .filter(AlbumPredicates.isNotRadioShow())

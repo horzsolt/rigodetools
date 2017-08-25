@@ -7,7 +7,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -22,7 +21,6 @@ import java.util.StringTokenizer;
 /**
  * Created by horzsolt on 2017. 06. 11..
  */
-@Component
 public class FileToMp3Mapper {
 
     private static final Logger logger = LoggerFactory.getLogger(FileToMp3Mapper.class);
@@ -84,7 +82,7 @@ public class FileToMp3Mapper {
                     .filter(ftpfile -> ftpfile.getName().length() > 3)
                     .forEach(ftpfile -> setAlbumDetails(album, ftpfile, fileFav));
 
-            if ((!album.isFileFavourite()) && (fileFav != null)) {
+            if ((!album.isFileFavourite()) && (fileFav.size() > 0)) {
                 long count = album.getMp3Files().stream()
                         .filter(mp3 -> fileFav.stream().anyMatch(x -> mp3.getTitle().toUpperCase().contains(x.toUpperCase())))
                         .count();
@@ -116,7 +114,7 @@ public class FileToMp3Mapper {
                     album.setBitrate(256);
                 }
 
-                if (fileFav != null) {
+                if (fileFav.size() > 0) {
                     album.setFileFavourite(fileFav.stream().anyMatch(x -> album.getTitle().toUpperCase().contains(x)));
                 } else {
                     album.setFileFavourite(false);

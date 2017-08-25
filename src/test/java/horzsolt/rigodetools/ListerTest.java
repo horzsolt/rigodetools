@@ -58,7 +58,9 @@ public class ListerTest {
 
         if (Files.exists(favPath)) {
             lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));
-            lines.stream().map(line -> line.toUpperCase());
+            lines = lines.stream()
+                    .map(line -> line.toUpperCase())
+                    .collect(Collectors.toList());
         }
 
         FTPClient ftp = new FTPClient();

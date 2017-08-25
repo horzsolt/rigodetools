@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static horzsolt.rigodetools.mp3.DateHelper.getDateStream;
 
@@ -45,7 +46,9 @@ public class Mp3Getter {
 
         if (Files.exists(favPath)) {
             lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));
-            lines.stream().map(line -> line.toUpperCase());
+            lines = lines.stream()
+                    .map(line -> line.toUpperCase())
+                    .collect(Collectors.toList());
             logger.debug("Favs loaded.");
         }
 

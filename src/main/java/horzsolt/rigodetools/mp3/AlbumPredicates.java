@@ -25,9 +25,9 @@ public class AlbumPredicates {
             "JUSTIN_MARTIN", "LAWLER", "PACO_OSUNA", "TANZMANN", "DEETRON", "DEEP", "BENN_FINN", "TIMO_MAAS", "PICKS", "FABRIC",
             "GLOBAL_UNDERGROUND", "MOBY", "SERIES", "HOXTON", "ESSENTIAL", "MOONBEAM", "RA-TOP", "TRACKS", "UNMIXED", "BUDAI",
             "HUNGARY", "BUDAPEST", "_SOUNDS", "PODCAST", "MANTZUR", "VANNELLI", "HAWTIN", "TRENTEM", "CHYMERA", "SCUBA", "GUY_GERBER", "ZUSAMMENKLANG",
-            "EULBERG, HAZENDONK", "RILEY_REINHOLD", "ADVISOR", "_TOP"};
+            "EULBERG, HAZENDONK", "RILEY_REINHOLD", "ADVISOR", "_TOP", "CD_POOL"};
 
-    public static final String[] banned = {"HARDSTYLE"};
+    public static final String[] banned = {"HARDSTYLE", "GOA", "DRUM_AND_BASS", "_PSY_", "90S", "TRAP_", "TANZ", "CHILLHOUSE", "RETRO","HOT_DANCE", "EDM"};
 
     public static Predicate<Album> isFavourite() {
         return album -> {

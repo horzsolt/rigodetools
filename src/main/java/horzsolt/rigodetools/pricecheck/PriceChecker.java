@@ -26,7 +26,7 @@ public class PriceChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Long basePrice = 100000L;
-    public final String emagUrl = "https://www.emag.hu/sony-playstation-4-pro-neo-konzol-1-tb-fekete-ps4pro1tb/pd/DVKHF2BBM/";
+    public final String emagUrl = "https://www.emag.hu/sony-playstation-4-pro-1tb-ps4-konzol-57877/pd/DVV2Z7BBM/";
     public final String edigitalUrl = "https://edigital.hu/gepek/playstation-ps4-1tb-pro-jatekkonzol-p460598";
     public final String medialUrl = "http://www.mediamarkt.hu/hu/product/_sony-playstation-4-pro-1tb-1214875.html";
     public final String argepUrl = "http://www.argep.hu/product_2463768.html";

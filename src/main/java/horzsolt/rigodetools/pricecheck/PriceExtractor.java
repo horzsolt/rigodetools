@@ -18,6 +18,7 @@ public class PriceExtractor {
 
         try {
 
+            logger.debug("GetPric from: " + url);
             Document doc = Jsoup.connect(url).userAgent("Mozilla").get();
             result = filter.apply(doc);
 
@@ -28,7 +29,7 @@ public class PriceExtractor {
             return new PriceResult("",0L);
         } finally {
             long end = System.nanoTime();
-            logger.debug("Time taken for " + result.toString() + ": " + (end - start) / 1.0e9);
+            logger.debug("Time taken for " + url + ": " + (end - start) / 1.0e9);
         }
     }
 }

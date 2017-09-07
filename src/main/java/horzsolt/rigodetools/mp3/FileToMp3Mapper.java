@@ -3,8 +3,7 @@ package horzsolt.rigodetools.mp3;
 import horzsolt.rigodetools.mp3.entity.Album;
 import horzsolt.rigodetools.mp3.entity.FTPFilePlus;
 import horzsolt.rigodetools.mp3.entity.Mp3;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
+import it.sauronsoftware.ftp4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ public class FileToMp3Mapper {
 
         try {
 
-            FTPFile[] files = client.listFiles(album.getFtpDirectory() + "/" + album.getTitle());
+            FTPFile[] files = client.list(album.getFtpDirectory() + "/" + album.getTitle());
             String localPath;
 
             if (album.isFileFavourite()) {
@@ -42,7 +41,7 @@ public class FileToMp3Mapper {
             }
 
             Arrays.stream(files)
-                    .filter(ftpFile -> ftpFile.isFile())
+                    .filter(ftpFile -> ftpFile.getType() == FTPFile.TYPE_FILE)
                     .forEach(ftpFile -> {
                 try {
                     Path localFile = Paths.get(localPath + "/" + ftpFile.getName());
@@ -54,10 +53,7 @@ public class FileToMp3Mapper {
 
                         logger.debug(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getName() + " -> " + localPath);
 
-                        OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(localPath + "/" + ftpFile.getName()));
-                        boolean success = client.retrieveFile(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getName(), outputStream1);
-
-                        outputStream1.close();
+                        client.download(album.getFtpDirectory() + "/" + album.getTitle() + "/" + ftpFile.getName(), new File(localPath + "/" + ftpFile.getName()));
                     }
                 } catch (Exception e) {
                     logger.error("dlFolder error: ", e);
@@ -77,7 +73,7 @@ public class FileToMp3Mapper {
         album.setFtpDirectory(ftpFilePlus.getParent());
 
         try {
-            FTPFile[] files = client.listFiles(album.getFtpDirectory() + "/" + album.getTitle());
+            FTPFile[] files = client.list(album.getFtpDirectory() + "/" + album.getTitle());
             Arrays.stream(files)
                     .filter(ftpfile -> ftpfile.getName().length() > 3)
                     .forEach(ftpfile -> setAlbumDetails(album, ftpfile, fileFav));
@@ -89,7 +85,7 @@ public class FileToMp3Mapper {
 
                 album.setFileFavourite(count > 0);
             }
-        } catch (IOException e) {
+        } catch (IOException | FTPAbortedException | FTPDataTransferException | FTPException | FTPListParseException | FTPIllegalReplyException e) {
             logger.error("FileToMp3Mapper.apply: ", e);
         }
 
@@ -98,7 +94,7 @@ public class FileToMp3Mapper {
 
     private static Album setAlbumDetails(Album album, FTPFile file, List<String> fileFav) {
 
-        if (file.isDirectory()) {
+        if (file.getType() == FTPFile.TYPE_DIRECTORY) {
             //-[House]--[2015]--[320 KBit]--[MP3TRACKZ.NET]-
             StringTokenizer sk = new StringTokenizer(file.getName().replaceAll("-", ""), "[]");
 
@@ -114,11 +110,8 @@ public class FileToMp3Mapper {
                     album.setBitrate(256);
                 }
 
-                if (fileFav.size() > 0) {
-                    album.setFileFavourite(fileFav.stream().anyMatch(x -> album.getTitle().toUpperCase().contains(x)));
-                } else {
-                    album.setFileFavourite(false);
-                }
+                album.setFileFavourite(fileFav.stream().anyMatch(x -> x.toUpperCase().contains(album.getTitle().toUpperCase())));
+
 
             } else {
                 logger.info("CountTokens is not equals with 4: " + sk.countTokens() + " " + file.getName());

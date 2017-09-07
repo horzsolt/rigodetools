@@ -28,6 +28,9 @@ configurations {
 }
 
 dependencies {
+
+	compile fileTree(dir: 'lib', include: '*.jar')
+
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
 	compile("org.springframework.boot:spring-boot-starter-cache")
 
@@ -37,6 +40,8 @@ dependencies {
 	compile 'ch.qos.logback:logback-parent:1.2.3'
 	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.1'
 	compile group: 'javax.mail', name: 'mail', version: '1.4.7'
+	
+	compile files('lib/deps-01.jar')	
 
 	runtime('org.springframework.boot:spring-boot-devtools')
 	//providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')

@@ -4,7 +4,9 @@ import horzsolt.rigodetools.mp3.AlbumPredicates;
 import horzsolt.rigodetools.mp3.FTPHelper;
 import horzsolt.rigodetools.mp3.FileToMp3Mapper;
 import horzsolt.rigodetools.mp3.entity.Album;
-import org.apache.commons.net.ftp.FTPClient;
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPException;
+import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,10 +28,26 @@ import static org.junit.Assert.assertTrue;
  */
 public class ListerTest {
 
-    public static final String startDir = "/MP3/0-DAY/0610";
-    private final LocalDate startDate = LocalDate.parse("2017-08-16");
-    private final LocalDate endDate = LocalDate.parse("2017-08-16");
-    private List<String> lines = null;
+    public static final String startDir = "/MP3/0-DAY/0812";
+    private final LocalDate startDate = LocalDate.parse("2017-08-12");
+    private final LocalDate endDate = LocalDate.parse("2017-08-12");
+    private List<String> lines = Collections.emptyList();
+
+
+    @Test
+    public void streamTest()  throws IOException {
+        Path favPath = Paths.get("/olume1/horzsolt/rigodetools/favs.txt");
+
+        if (Files.exists(favPath)) {
+            lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));
+            lines = lines.stream() // :-(
+                    .map(line -> line.toUpperCase())
+                    .collect(Collectors.toList());
+        }
+
+        //assertTrue(lines.stream().anyMatch(x -> "axe".toUpperCase().contains(x)));
+        assertTrue(lines.stream().anyMatch(x -> x.toUpperCase().contains("AXE")));
+    }
 
     @Test
     public void albumFavFilterTest() {
@@ -52,27 +71,31 @@ public class ListerTest {
     }
 
     @Test
-    public void directoryLister() throws IOException {
+    public void directoryLister() throws IOException, FTPIllegalReplyException, FTPException {
 
         Path favPath = Paths.get("/volume1/horzsolt/rigodetools/favs.txt");
 
         if (Files.exists(favPath)) {
             lines = Files.readAllLines(favPath, Charset.forName("UTF-8"));
-            lines = lines.stream()
+            lines = lines.stream() // :-(
                     .map(line -> line.toUpperCase())
                     .collect(Collectors.toList());
         }
 
-        FTPClient ftp = new FTPClient();
-        ftp.connect(System.getenv("KOALA_HOST"), 7777);
-
-        ftp.setDataTimeout(60 * 1000);
-
         String username = System.getenv("KOALA_USERNAME");
         String pws = System.getenv("KOALA_PWD");
 
+        org.apache.commons.net.ftp.FTPClient ftp2 = new org.apache.commons.net.ftp.FTPClient();
+        ftp2.connect(System.getenv("KOALA_HOST"), 7777);
+        ftp2.login(username, pws);
+        ftp2.setDataTimeout(60 * 1000);
+        ftp2.enterLocalPassiveMode();
+
+        FTPClient ftp = new FTPClient();
+        ftp.connect(System.getenv("KOALA_HOST"), 7777);
         ftp.login(username, pws);
-        ftp.enterLocalPassiveMode();
+
+        ftp.setPassive(true);
 
         try {
 
@@ -80,7 +103,7 @@ public class ListerTest {
             List<Album> albumList = getDateStream(startDate, endDate)
                     .map(dateString -> "/MP3/0-DAY/" + dateString)
                     .flatMap(parent -> {
-                            return FTPHelper.listFTPFolder(parent, ftp);
+                            return FTPHelper.listFTPFolder(parent, ftp2);
                     })
                     //.peek(n -> System.out.println(n))
                     .filter(ftpFile -> ftpFile.getFtpFile().getName().length() > 3)
@@ -91,14 +114,18 @@ public class ListerTest {
                     .filter(AlbumPredicates.isNotRadioShow())
                     .collect(Collectors.toList());
 
-            albumList.forEach( album -> FileToMp3Mapper.dlFolder(ftp, album));
+            albumList.forEach(album -> System.out.println(album));
 
             assertTrue(albumList.stream().filter(album -> (album.getBitrate() != 0)).count() > 0);
 
         } finally {
 
+            if (ftp2.isConnected()) {
+                ftp2.disconnect();
+            }
+
             if (ftp.isConnected()) {
-                ftp.disconnect();
+                ftp.disconnect(true);
             }
         }
 

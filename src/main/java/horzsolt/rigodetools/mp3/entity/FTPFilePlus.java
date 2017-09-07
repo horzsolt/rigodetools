@@ -1,6 +1,6 @@
 package horzsolt.rigodetools.mp3.entity;
 
-import org.apache.commons.net.ftp.FTPFile;
+import it.sauronsoftware.ftp4j.FTPFile;
 
 /**
  * Created by horzsolt on 2017. 06. 17..

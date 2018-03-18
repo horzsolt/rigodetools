@@ -23,22 +23,22 @@ public class JSoupTests {
 
         PriceChecker priceChecker = new PriceChecker();
 
-        PriceResult media = PriceExtractor.getPrice(priceChecker.medialUrl, priceChecker::mediaMarktPriceExtractor);
+        PriceResult media = PriceExtractor.getPrice(priceChecker.medialUrl, 1, priceChecker::mediaMarktPriceExtractor);
 
         logger.debug("MediaMarktPrice: " + media);
         assertTrue(media.getPrice() > 0);
 
-        PriceResult emag = PriceExtractor.getPrice(priceChecker.emagUrl, priceChecker::emagPriceExtractor);
+        PriceResult emag = PriceExtractor.getPrice(priceChecker.emagUrl, 1, priceChecker::emagPriceExtractor);
 
         logger.debug("EMagPrice: " + emag);
         assertTrue(emag.getPrice() > 0);
 
-        PriceResult argep = PriceExtractor.getPrice(priceChecker.argepUrl, priceChecker::argepPriceExtractor);
+        PriceResult argep = PriceExtractor.getPrice(priceChecker.argepUrl, 1, priceChecker::argepPriceExtractor);
 
         logger.debug("argepPrice: " + argep);
         assertTrue(argep.getPrice() > 0);
 
-        PriceResult edigital = PriceExtractor.getPrice(priceChecker.edigitalUrl, priceChecker::edigitalPriceExtractor);
+        PriceResult edigital = PriceExtractor.getPrice(priceChecker.edigitalUrl, 1, priceChecker::edigitalPriceExtractor);
 
         logger.debug("edigitalPrice: " + edigital);
         assertTrue(edigital.getPrice() > 0);

@@ -33,6 +33,16 @@ public class ListerTest {
     private final LocalDate endDate = LocalDate.parse("2017-08-12");
     private List<String> lines = Collections.emptyList();
 
+    @Test
+    public void favouriteTest() {
+        List<String> lines = Arrays.asList("spring", "node", "mkyong");
+
+        List<String> result = lines.stream()                // convert list to stream
+                .filter(line -> !"mkyong".equals(line))     // we dont like mkyong
+                .collect(Collectors.toList());              // collect the output and convert streams to a List
+
+        result.forEach(System.out::println);
+    }
 
     @Test
     public void streamTest()  throws IOException {
